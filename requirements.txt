@@ -1,2 +1,4 @@
 Flask
 Flask-cors
+requests
+python-dotenv

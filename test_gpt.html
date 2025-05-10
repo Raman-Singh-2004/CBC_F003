@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test GPT Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        input {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test GPT Connection</h1>
+    <p>Enter a message and click the button to test the connection to your GPT-powered Flask server:</p>
+    
+    <input type="text" id="messageInput" placeholder="Enter your message here" value="Tell me a joke">
+    <button id="testBtn">Send to GPT</button>
+    
+    <div id="result">Results will appear here...</div>
+    
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            const message = document.getElementById('messageInput').value.trim();
+            
+            if (!message) {
+                resultDiv.innerHTML = 'Please enter a message first.';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Sending request to GPT...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                resultDiv.innerHTML += '<br>Response status: ' + response.status;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML += '<br><br><strong>GPT Response:</strong><br>' + data.reply;
+                    resultDiv.innerHTML += '<br><br>✅ Connection successful!';
+                } else {
+                    resultDiv.innerHTML += '<br>❌ Server returned an error: ' + response.status;
+                }
+            } catch (error) {
+                resultDiv.innerHTML += '<br>❌ Connection failed: ' + error.message;
+                resultDiv.innerHTML += '<br><br>Possible reasons:<ul>' +
+                    '<li>Flask server is not running</li>' +
+                    '<li>Server is running on a different port</li>' +
+                    '<li>CORS is not properly configured</li>' +
+                    '<li>Network/firewall issues</li>' +
+                    '<li>API key issues</li></ul>';
+            }
+        });
+    </script>
+</body>
+</html>

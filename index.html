@@ -5,18 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mental Health AI Chatbot</title>
     <style>
+        :root {
+            --primary-color: #000dff;
+            --primary-light: #6b73ff;
+            --primary-dark: #0009cc;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --message-user: var(--primary-color);
+            --message-bot: #e2e2e2;
+            --message-user-text: var(--text-light);
+            --message-bot-text: var(--primary-color);
+        }
+
+        .dark-theme {
+            --primary-color: #4d5bff;
+            --primary-light: #8187ff;
+            --primary-dark: #3a46cc;
+            --text-light: #ffffff;
+            --text-dark: #e0e0e0;
+            --bg-light: #121212;
+            --bg-dark: #000000;
+            --message-user: #4d5bff;
+            --message-bot: #2a2a2a;
+            --message-user-text: var(--text-light);
+            --message-bot-text: #e0e0e0;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #6b73ff, #000dff);
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
             margin: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #333;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
         }
+
         #app {
-            background: white;
+            background: var(--bg-light);
             max-width: 400px;
             width: 100%;
             height: 600px;
@@ -24,23 +54,170 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 8px 20px rgb(0 0 0 / 0.2);
+            position: relative;
         }
+
         header {
-            background: #000dff;
-            color: white;
+            background: var(--primary-color);
+            color: var(--text-light);
             padding: 15px;
             font-size: 1.5rem;
             text-align: center;
             border-radius: 15px 15px 0 0;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .mental-health-indicator {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50; /* Default: green */
+            transition: background-color 0.5s ease;
+        }
+
+        .mental-health-indicator.medium {
+            background-color: #FFC107; /* Medium concern: yellow */
+        }
+
+        .mental-health-indicator.high {
+            background-color: #F44336; /* High concern: red */
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+
+        .deep-listening-mode {
+            position: absolute;
+            top: 15px;
+            right: 60px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background-color: #9C27B0; /* Purple for deep listening */
+            padding: 3px 8px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .deep-listening-mode.active {
+            opacity: 1;
+            animation: glow-purple 2s infinite alternate;
+        }
+
+        @keyframes glow-purple {
+            from { box-shadow: 0 0 5px rgba(156, 39, 176, 0.5); }
+            to { box-shadow: 0 0 15px rgba(156, 39, 176, 0.8); }
+        }
+
+        .mood-encouragement-mode {
+            position: absolute;
+            top: 15px;
+            right: 180px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background-color: #FF5722; /* Orange for mood encouragement */
+            padding: 3px 8px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .mood-encouragement-mode.active {
+            opacity: 1;
+            animation: glow-orange 2s infinite alternate;
+        }
+
+        @keyframes glow-orange {
+            from { box-shadow: 0 0 5px rgba(255, 87, 34, 0.5); }
+            to { box-shadow: 0 0 15px rgba(255, 87, 34, 0.8); }
+        }
+
+        .positive-mood-mode {
+            position: absolute;
+            top: 15px;
+            right: 300px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background-color: #4CAF50; /* Green for positive mood */
+            padding: 3px 8px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .positive-mood-mode.active {
+            opacity: 1;
+            animation: glow-green 2s infinite alternate;
+        }
+
+        @keyframes glow-green {
+            from { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+            to { box-shadow: 0 0 15px rgba(76, 175, 80, 0.8); }
+        }
+
+        .wellness-mode {
+            position: absolute;
+            top: 15px;
+            right: 420px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            background-color: #3F51B5; /* Indigo for wellness */
+            padding: 3px 8px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .wellness-mode.active {
+            opacity: 1;
+            animation: glow-indigo 2s infinite alternate;
+        }
+
+        @keyframes glow-indigo {
+            from { box-shadow: 0 0 5px rgba(63, 81, 181, 0.5); }
+            to { box-shadow: 0 0 15px rgba(63, 81, 181, 0.8); }
+        }
+
+
+
+        #theme-toggle {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         #chat-box {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
             display: flex;
             flex-direction: column;
+            background-color: var(--bg-light);
+            transition: background-color 0.3s ease;
         }
+
         .message {
             max-width: 75%;
             margin: 8px 0;
@@ -48,50 +225,165 @@
             border-radius: 20px;
             word-wrap: break-word;
             line-height: 1.4;
+            animation: fadeIn 0.3s ease;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .user {
-            background: #000dff;
-            color: white;
+            background: var(--message-user);
+            color: var(--message-user-text);
             align-self: flex-end;
             border-bottom-right-radius: 0;
         }
+
         .bot {
-            background: #e2e2e2;
-            color: #000dff;
+            background: var(--message-bot);
+            color: var(--message-bot-text);
             align-self: flex-start;
             border-bottom-left-radius: 0;
         }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            align-self: flex-start;
+            background: var(--message-bot);
+            border-radius: 20px;
+            padding: 12px 18px;
+            margin: 8px 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--message-bot-text);
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 1px;
+            opacity: 0.4;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation: pulse 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation: pulse 1s infinite 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation: pulse 1s infinite 0.4s;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
         form {
             display: flex;
             padding: 10px;
             border-top: 1px solid #ddd;
+            background-color: var(--bg-light);
+            position: relative;
         }
+
         input[type="text"] {
             flex: 1;
             padding: 12px 18px;
+            padding-right: 40px; /* Space for the music icon */
             border-radius: 25px;
             border: 1px solid #ccc;
             font-size: 1rem;
             outline: none;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
         }
+
         button {
             margin-left: 10px;
-            background: #000dff;
+            background: var(--primary-color);
             border: none;
-            color: white;
+            color: var(--text-light);
             font-weight: bold;
             border-radius: 25px;
             padding: 0 20px;
             cursor: pointer;
             transition: background 0.3s ease;
         }
+
         button:hover:not(:disabled) {
-            background: #0009cc;
+            background: var(--primary-dark);
         }
+
         button:disabled {
             background: #888;
             cursor: default;
         }
+
+        #music-icon, #wellness-icon, #clear-chat-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #music-icon {
+            right: 80px;
+        }
+
+        #wellness-icon {
+            right: 120px;
+        }
+
+        #clear-chat-btn {
+            right: 160px;
+        }
+
+        #music-icon:hover, #wellness-icon:hover, #clear-chat-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        #music-icon:hover .tooltip {
+            opacity: 1;
+        }
+
+
+
         @media (max-width: 400px) {
             #app {
                 border-radius: 0;
@@ -102,10 +394,33 @@
 </head>
 <body>
     <div id="app" role="main" aria-label="Mental Health AI Chatbot Interface">
-        <header>Mental Health Chatbot</header>
+        <header>
+            <div class="mental-health-indicator" id="mental-health-indicator" title="Mental health status indicator"></div>
+            <span>Mental Health Chatbot</span>
+            <div class="wellness-mode" id="wellness-indicator">Wellness Mode</div>
+            <div class="positive-mood-mode" id="positive-mood-indicator">Celebration Mode</div>
+            <div class="mood-encouragement-mode" id="mood-encouragement-indicator">Encouragement Mode</div>
+            <div class="deep-listening-mode" id="deep-listening-indicator">Deep Listening</div>
+            <button id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        </header>
         <div id="chat-box" aria-live="polite" aria-relevant="additions"></div>
+
+
+
         <form id="chat-form" aria-label="Chat input form">
             <input id="input-msg" type="text" autocomplete="off" placeholder="Type your message..." required aria-required="true"/>
+            <button id="music-icon" type="button" aria-label="Get song recommendations">
+                🎵
+                <span class="tooltip">Get song recommendations</span>
+            </button>
+            <button id="wellness-icon" type="button" aria-label="Get wellness routines">
+                🧘
+                <span class="tooltip">Get wellness routines</span>
+            </button>
+            <button id="clear-chat-btn" type="button" aria-label="Clear chat history">
+                🗑️
+                <span class="tooltip">Clear chat history</span>
+            </button>
             <button type="submit" id="send-btn" aria-label="Send message">Send</button>
         </form>
     </div>
@@ -115,15 +430,504 @@
         const chatForm = document.getElementById('chat-form');
         const inputMsg = document.getElementById('input-msg');
         const sendBtn = document.getElementById('send-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const musicIcon = document.getElementById('music-icon');
+        const wellnessIcon = document.getElementById('wellness-icon');
+        const clearChatBtn = document.getElementById('clear-chat-btn');
+        const mentalHealthIndicator = document.getElementById('mental-health-indicator');
+        const deepListeningIndicator = document.getElementById('deep-listening-indicator');
+        const moodEncouragementIndicator = document.getElementById('mood-encouragement-indicator');
+        const positiveMoodIndicator = document.getElementById('positive-mood-indicator');
+        const wellnessIndicator = document.getElementById('wellness-indicator');
 
-        // Append a chat message to the chat box
-        function appendMessage(text, sender) {
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            themeToggle.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+            // Save theme preference
+            localStorage.setItem('darkTheme', document.body.classList.contains('dark-theme'));
+        });
+
+        // Load saved theme preference
+        if (localStorage.getItem('darkTheme') === 'true') {
+            document.body.classList.add('dark-theme');
+            themeToggle.textContent = '☀️';
+        }
+
+        // Music icon click handler
+        musicIcon.addEventListener('click', () => {
+            // Set input field to ask for song recommendations
+            inputMsg.value = "Suggest songs for my current mood";
+            inputMsg.focus();
+
+            // Optionally, automatically submit the form
+            // Uncomment the next line to auto-submit
+            // chatForm.dispatchEvent(new Event('submit'));
+        });
+
+        // Wellness icon click handler
+        wellnessIcon.addEventListener('click', () => {
+            // Set input field to ask for wellness routines
+            inputMsg.value = "Suggest a daily routine for mental and physical wellness";
+            inputMsg.focus();
+
+            // Optionally, automatically submit the form
+            // Uncomment the next line to auto-submit
+            // chatForm.dispatchEvent(new Event('submit'));
+        });
+
+
+
+        // Clear chat button click handler
+        clearChatBtn.addEventListener('click', () => {
+            // Ask for confirmation before clearing
+            if (confirm("Are you sure you want to clear the chat history?")) {
+                clearChatHistory();
+            }
+        });
+
+        // Function to analyze mental health from bot responses
+        function analyzeMentalHealth(text) {
+            // Check for indicators of mental health concerns in the bot's response
+            const highConcernPhrases = [
+                "crisis", "emergency", "suicidal", "self-harm", "hurt yourself",
+                "harm yourself", "kill yourself", "end your life", "suicide prevention",
+                "thoughts of harming", "thoughts of suicide"
+            ];
+
+            const mediumConcernPhrases = [
+                "depression", "anxiety", "feeling overwhelmed", "panic", "severe stress",
+                "mental health professional", "therapist", "counselor", "psychiatrist",
+                "coping strategies", "coping mechanisms"
+            ];
+
+            // Check for high concern phrases
+            if (highConcernPhrases.some(phrase => text.toLowerCase().includes(phrase))) {
+                return "high";
+            }
+
+            // Check for medium concern phrases
+            if (mediumConcernPhrases.some(phrase => text.toLowerCase().includes(phrase))) {
+                return "medium";
+            }
+
+            // Default to low concern
+            return "low";
+        }
+
+        // Function to detect deep listening mode from bot responses
+        function detectDeepListening(text) {
+            // Check for indicators of deep listening in the bot's response
+            const deepListeningPhrases = [
+                "thank you for sharing", "appreciate you opening up", "thank you for trusting me",
+                "that must have been", "it takes courage", "that sounds difficult",
+                "i hear you", "your feelings are valid", "that's a powerful realization",
+                "self-reflection", "self-awareness", "personal growth",
+                "your experiences", "your journey", "your story",
+                "would you like to share more", "how does that make you feel",
+                "what led you to this realization", "how might this insight change",
+                "what first inspired this goal", "what would achieving this mean to you",
+                "what would self-forgiveness look like", "what helps you cope",
+                "what has helped you cope", "what would support and healing look like"
+            ];
+
+            // Check if any deep listening phrases are present
+            return deepListeningPhrases.some(phrase => text.toLowerCase().includes(phrase));
+        }
+
+        // Function to detect mood encouragement mode from bot responses
+        function detectMoodEncouragement(text) {
+            // Check for indicators of mood encouragement in the bot's response
+            const moodEncouragementPhrases = [
+                "i notice you might be feeling down",
+                "your tears are valid",
+                "even on your saddest days",
+                "the depth of your sadness",
+                "your heart may feel heavy",
+                "sadness visits everyone",
+                "the universe isn't punishing you",
+                "your vulnerability isn't weakness",
+                "i believe in your ability to find joy again",
+                "your sadness matters to me",
+                "even when you can't feel your own light",
+                "your existence makes the world better",
+                "i see you fighting battles",
+                "depression tells you you're alone",
+                "your worth isn't measured",
+                "the fact that you're still here",
+                "i believe in your tomorrow",
+                "your depression doesn't make you broken",
+                "i wish i could show you yourself",
+                "you deserve gentle patience",
+                "your feelings are valid",
+                "even on your worst days",
+                "this moment doesn't define you",
+                "i see your struggle today",
+                "you're allowed to have bad days",
+                "sometimes the bravest thing",
+                "your bad day matters to me",
+                "even when you don't feel strong",
+                "the fact that you can feel deeply",
+                "i believe in your ability to weather this storm",
+                "even the darkest night will end",
+                "the wound is the place",
+                "there are far, far better things ahead",
+                "sadness flies away",
+                "if you want the rainbow",
+                "tears are words that need to be written",
+                "it's okay to not be okay",
+                "sadness is but a wall between two gardens",
+                "the pain you feel today",
+                "your sadness is a gift",
+                "you're not a burden",
+                "depression is a fog",
+                "sometimes the bravest thing",
+                "your story isn't over yet",
+                "even when you can't see it",
+                "the fact that you're still here",
+                "depression lies to you",
+                "you've survived 100% of your worst days",
+                "sometimes healing happens so slowly",
+                "your presence in this world matters",
+                "this feeling is temporary",
+                "you're allowed to have bad days",
+                "sometimes the bad days put the good ones into perspective",
+                "take a deep breath",
+                "it's okay to reset",
+                "bad days are just days that are bad",
+                "your mood is like weather",
+                "even in your worst moments",
+                "this tough moment is shaping you",
+                "sometimes the universe sends rain"
+            ];
+
+            // Check if any mood encouragement phrases are present
+            return moodEncouragementPhrases.some(phrase => text.toLowerCase().includes(phrase));
+        }
+
+        // Function to detect positive mood mode from bot responses
+        function detectPositiveMood(text) {
+            // Check for indicators of positive mood celebration in the bot's response
+            const positiveMoodPhrases = [
+                "that's fantastic",
+                "wonderful",
+                "that makes me so happy to hear",
+                "awesome",
+                "that's terrific news",
+                "i'm thrilled to hear that",
+                "how wonderful",
+                "that's music to my ears",
+                "brilliant",
+                "i'm so glad to hear you're feeling positive",
+                "that's excellent",
+                "fantastic",
+                "that's really great to hear",
+                "marvelous",
+                "how delightful",
+                "that's wonderful news",
+                "i'm so pleased to hear that",
+                "excellent",
+                "that's just awesome",
+                "your positive energy is contagious",
+                "it's so great to hear you're in a positive mood",
+                "positive emotions are worth savoring",
+                "your happiness matters",
+                "happiness looks good on you",
+                "positive moments like this are precious",
+                "your happiness brightens the day",
+                "feeling good is something to celebrate",
+                "positive emotions help us build resilience",
+                "these moments of joy are what make life beautiful",
+                "may this feeling stay with you",
+                "your positive mood is something to cherish",
+                "positive emotions are worth acknowledging",
+                "your positive energy is a gift",
+                "i find myself smiling knowing you're in good spirits",
+                "positive feelings are treasures",
+                "your happiness matters",
+                "feeling good is something to celebrate",
+                "your positive mood brightens not just your day",
+                "these positive moments are precious",
+                "you deserve every bit of happiness",
+                "your positive attitude creates positive circumstances",
+                "the joy you feel today is a reflection",
+                "when you're happy, you're at your most powerful",
+                "your positive energy has a ripple effect",
+                "happiness is your natural state",
+                "the good feelings you experience today",
+                "your capacity for joy is unlimited",
+                "by acknowledging your positive feelings",
+                "your happiness is important and worthy of celebration",
+                "the positive energy you cultivate today",
+                "when you honor your joy",
+                "your happiness is not just a feeling",
+                "the positive thoughts you think today",
+                "your joy is a gift",
+                "by celebrating your happiness",
+                "the positive feelings you experience",
+                "your capacity for happiness is a superpower",
+                "the joy you feel is a reminder",
+                "your positive mood is not just luck"
+            ];
+
+            // Check if any positive mood phrases are present
+            return positiveMoodPhrases.some(phrase => text.toLowerCase().includes(phrase));
+        }
+
+        // Function to detect wellness mode from bot responses
+        function detectWellnessMode(text) {
+            // Check for indicators of wellness routines in the bot's response
+            const wellnessPhrases = [
+                "daily routine",
+                "wellness routine",
+                "mental wellness",
+                "physical wellness",
+                "morning routine",
+                "evening routine",
+                "mindful morning",
+                "energizing morning",
+                "relaxing wind-down",
+                "daily steps",
+                "benefits",
+                "balanced daily wellness",
+                "stress management routine",
+                "mood-boosting routine",
+                "daily movement routine",
+                "energy-optimizing routine",
+                "recovery-focused routine",
+                "beginner's wellness routine",
+                "work-life balance routine",
+                "grounding morning routine",
+                "digital detox evening routine",
+                "reflective evening routine",
+                "the best routine is one you can stick with consistently",
+                "start small by incorporating just 1-2 of these steps",
+                "gradually add more as they become habits"
+            ];
+
+            // Check if any wellness phrases are present
+            return wellnessPhrases.some(phrase => text.toLowerCase().includes(phrase));
+        }
+
+
+
+        // Function to update the mental health indicator
+        function updateMentalHealthIndicator(concernLevel) {
+            // Remove all classes first
+            mentalHealthIndicator.classList.remove("medium", "high");
+
+            // Add appropriate class based on concern level
+            if (concernLevel === "medium") {
+                mentalHealthIndicator.classList.add("medium");
+                mentalHealthIndicator.title = "Medium concern detected - consider using coping strategies";
+            } else if (concernLevel === "high") {
+                mentalHealthIndicator.classList.add("high");
+                mentalHealthIndicator.title = "High concern detected - please consider professional support";
+            } else {
+                mentalHealthIndicator.title = "Mental health status indicator";
+            }
+        }
+
+        // Function to update the deep listening indicator
+        function updateDeepListeningIndicator(isDeepListening) {
+            if (isDeepListening) {
+                deepListeningIndicator.classList.add("active");
+                // Store the state in localStorage
+                localStorage.setItem('deepListeningMode', 'active');
+            } else {
+                deepListeningIndicator.classList.remove("active");
+                // Update localStorage
+                localStorage.setItem('deepListeningMode', 'inactive');
+            }
+        }
+
+        // Function to update the mood encouragement indicator
+        function updateMoodEncouragementIndicator(isMoodEncouragement) {
+            if (isMoodEncouragement) {
+                moodEncouragementIndicator.classList.add("active");
+                // Store the state in localStorage
+                localStorage.setItem('moodEncouragementMode', 'active');
+            } else {
+                moodEncouragementIndicator.classList.remove("active");
+                // Update localStorage
+                localStorage.setItem('moodEncouragementMode', 'inactive');
+            }
+        }
+
+        // Function to update the positive mood indicator
+        function updatePositiveMoodIndicator(isPositiveMood) {
+            if (isPositiveMood) {
+                positiveMoodIndicator.classList.add("active");
+                // Store the state in localStorage
+                localStorage.setItem('positiveMoodMode', 'active');
+            } else {
+                positiveMoodIndicator.classList.remove("active");
+                // Update localStorage
+                localStorage.setItem('positiveMoodMode', 'inactive');
+            }
+        }
+
+        // Function to update the wellness mode indicator
+        function updateWellnessIndicator(isWellnessMode) {
+            if (isWellnessMode) {
+                wellnessIndicator.classList.add("active");
+                // Store the state in localStorage
+                localStorage.setItem('wellnessMode', 'active');
+            } else {
+                wellnessIndicator.classList.remove("active");
+                // Update localStorage
+                localStorage.setItem('wellnessMode', 'inactive');
+            }
+        }
+
+
+
+        // Create and show typing indicator
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.classList.add('typing-indicator');
+            indicator.id = 'typing-indicator';
+
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('span');
+                indicator.appendChild(dot);
+            }
+
+            chatBox.appendChild(indicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return indicator;
+        }
+
+        // Remove typing indicator
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Append a chat message to the chat box and save to history
+        function appendMessage(text, sender, save = true) {
             const div = document.createElement('div');
             div.classList.add('message', sender);
             div.textContent = text;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Save message to history if needed
+            if (save) {
+                saveMessageToHistory(text, sender);
+            }
+
+            // If this is a bot message, analyze it for mental health concerns, deep listening, mood encouragement, positive mood, wellness mode, and therapist mode
+            if (sender === 'bot') {
+                // Check for mental health concerns
+                const concernLevel = analyzeMentalHealth(text);
+                updateMentalHealthIndicator(concernLevel);
+
+                // Store the current concern level in localStorage
+                localStorage.setItem('mentalHealthConcernLevel', concernLevel);
+
+                // Check for deep listening mode
+                const isDeepListening = detectDeepListening(text);
+                updateDeepListeningIndicator(isDeepListening);
+
+                // Check for mood encouragement mode
+                const isMoodEncouragement = detectMoodEncouragement(text);
+                updateMoodEncouragementIndicator(isMoodEncouragement);
+
+                // Check for positive mood mode
+                const isPositiveMood = detectPositiveMood(text);
+                updatePositiveMoodIndicator(isPositiveMood);
+
+                // Check for wellness mode
+                const isWellnessMode = detectWellnessMode(text);
+                updateWellnessIndicator(isWellnessMode);
+            }
         }
+
+        // Save message to localStorage
+        function saveMessageToHistory(text, sender) {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            history.push({ text, sender, timestamp: new Date().toISOString() });
+            localStorage.setItem('chatHistory', JSON.stringify(history));
+        }
+
+        // Load chat history from localStorage
+        function loadChatHistory() {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            if (history.length > 0) {
+                history.forEach(msg => {
+                    appendMessage(msg.text, msg.sender, false);
+                });
+            } else {
+                // Initial greeting only if no history
+                appendMessage("Hello! I'm here to listen. How can I support you today?", 'bot', true);
+            }
+        }
+
+        // Clear chat history from localStorage and UI
+        function clearChatHistory() {
+            // Clear localStorage
+            localStorage.removeItem('chatHistory');
+
+            // Clear chat box UI
+            chatBox.innerHTML = '';
+
+            // Add welcome message
+            const welcomeMessage = "Hello! I'm your mental health chatbot. How are you feeling today?";
+            appendMessage(welcomeMessage, 'bot', false);
+        }
+
+        // Function to check if server is running
+        async function checkServerStatus() {
+            try {
+                const response = await fetch('http://localhost:5000/chat', {
+                    method: 'OPTIONS'
+                });
+                return response.ok;
+            } catch (error) {
+                console.error("Server check failed:", error);
+                return false;
+            }
+        }
+
+        // Function to handle offline mode
+        function handleOfflineMode() {
+            // Simple responses for offline mode
+            const offlineResponses = {
+                "hello": "Hello! I'm currently in offline mode, but I'm still here to chat.",
+                "hi": "Hi there! I'm in offline mode right now.",
+                "how are you": "I'm good, though I'm currently in offline mode.",
+                "help": "I wish I could help more, but I'm in offline mode. Try starting the server for full functionality.",
+                "bye": "Goodbye! Come back when the server is running for a better experience.",
+                "thanks": "You're welcome! Remember, I'm in offline mode with limited responses.",
+                "thank you": "You're welcome! Remember, I'm in offline mode with limited responses."
+            };
+
+            // Return a response or a default message
+            return function(message) {
+                const lowerMsg = message.toLowerCase();
+
+                // Check for exact matches
+                if (offlineResponses[lowerMsg]) {
+                    return offlineResponses[lowerMsg];
+                }
+
+                // Check for partial matches
+                for (const key in offlineResponses) {
+                    if (lowerMsg.includes(key)) {
+                        return offlineResponses[key];
+                    }
+                }
+
+                // Default response
+                return "I'm currently in offline mode with limited functionality. Please start the Flask server for full features.";
+            };
+        }
+
+        // Create offline responder
+        const getOfflineResponse = handleOfflineMode();
 
         // Send user message to backend and display bot reply
         async function sendMessage(message) {
@@ -131,22 +935,67 @@
             inputMsg.value = '';
             sendBtn.disabled = true;
 
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Check if server is running
+            const isServerRunning = await checkServerStatus();
+
+            if (!isServerRunning) {
+                // Handle offline mode
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const offlineReply = getOfflineResponse(message);
+                    appendMessage(offlineReply, 'bot');
+                    appendMessage("⚠️ Server connection failed. Running in offline mode with limited responses.", 'bot');
+                }, 1000);
+                sendBtn.disabled = false;
+                inputMsg.focus();
+                return;
+            }
+
             try {
                 const response = await fetch('http://localhost:5000/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ message }),
+                    credentials: 'same-origin' // Changed from 'include' to 'same-origin'
                 });
-                const data = await response.json();
-                appendMessage(data.reply, 'bot');
+
+                console.log("Server response status:", response.status); // Debug info
+
+                // Simulate a slight delay for more natural conversation flow
+                setTimeout(() => {
+                    hideTypingIndicator();
+
+                    if (response.ok) {
+                        response.json().then(data => {
+                            console.log("Server response:", data); // Debug info
+                            appendMessage(data.reply, 'bot');
+                        })
+                        .catch(err => {
+                            console.error("JSON parsing error:", err); // Debug info
+                            appendMessage("I received a response but couldn't understand it. Please try again.", 'bot');
+                        });
+                    } else {
+                        console.error("Server error response:", response.status); // Debug info
+                        appendMessage("I'm having trouble understanding. Could you try again?", 'bot');
+                    }
+                }, 1000);
             } catch (error) {
-                appendMessage("Oops! I can't reach the server right now. Please try again later.", 'bot');
+                console.error("Connection error:", error); // Debug info
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    // Provide more specific error message
+                    appendMessage("Oops! I can't reach the server right now. Make sure the Flask server is running on port 5000. Error: " + error.message, 'bot');
+                }, 1000);
             } finally {
                 sendBtn.disabled = false;
                 inputMsg.focus();
             }
         }
 
+        // Handle form submission
         chatForm.addEventListener('submit', e => {
             e.preventDefault();
             const msg = inputMsg.value.trim();
@@ -155,9 +1004,64 @@
             }
         });
 
-        // Initial greeting from bot
-        appendMessage("Hello! I'm here to listen. How can I support you today?", 'bot');
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', e => {
+            // Focus input when pressing / key
+            if (e.key === '/' && document.activeElement !== inputMsg) {
+                e.preventDefault();
+                inputMsg.focus();
+            }
+
+            // Toggle theme with Alt+T
+            if (e.altKey && e.key === 't') {
+                e.preventDefault();
+                document.body.classList.toggle('dark-theme');
+                themeToggle.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+                localStorage.setItem('darkTheme', document.body.classList.contains('dark-theme'));
+            }
+
+            // Request song recommendations with Alt+M
+            if (e.altKey && e.key === 'm') {
+                e.preventDefault();
+                inputMsg.value = "Suggest songs for my current mood";
+                inputMsg.focus();
+            }
+        });
+
+        // Clear chat history when opening a new tab/session
+        clearChatHistory();
+
+        // Load saved mental health concern level
+        const savedConcernLevel = localStorage.getItem('mentalHealthConcernLevel');
+        if (savedConcernLevel) {
+            updateMentalHealthIndicator(savedConcernLevel);
+        }
+
+        // Load saved deep listening mode
+        const savedDeepListeningMode = localStorage.getItem('deepListeningMode');
+        if (savedDeepListeningMode === 'active') {
+            updateDeepListeningIndicator(true);
+        }
+
+        // Load saved mood encouragement mode
+        const savedMoodEncouragementMode = localStorage.getItem('moodEncouragementMode');
+        if (savedMoodEncouragementMode === 'active') {
+            updateMoodEncouragementIndicator(true);
+        }
+
+        // Load saved positive mood mode
+        const savedPositiveMoodMode = localStorage.getItem('positiveMoodMode');
+        if (savedPositiveMoodMode === 'active') {
+            updatePositiveMoodIndicator(true);
+        }
+
+        // Load saved wellness mode
+        const savedWellnessMode = localStorage.getItem('wellnessMode');
+        if (savedWellnessMode === 'active') {
+            updateWellnessIndicator(true);
+        }
+
+
     </script>
 </body>
 </html>
-
