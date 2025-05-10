@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mental Health AI Chatbot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6b73ff, #000dff);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        #app {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgb(0 0 0 / 0.2);
+        }
+        header {
+            background: #000dff;
+            color: white;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            font-weight: bold;
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            max-width: 75%;
+            margin: 8px 0;
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .user {
+            background: #000dff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        .bot {
+            background: #e2e2e2;
+            color: #000dff;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            outline: none;
+        }
+        button {
+            margin-left: 10px;
+            background: #000dff;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 25px;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover:not(:disabled) {
+            background: #0009cc;
+        }
+        button:disabled {
+            background: #888;
+            cursor: default;
+        }
+        @media (max-width: 400px) {
+            #app {
+                border-radius: 0;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" role="main" aria-label="Mental Health AI Chatbot Interface">
+        <header>Mental Health Chatbot</header>
+        <div id="chat-box" aria-live="polite" aria-relevant="additions"></div>
+        <form id="chat-form" aria-label="Chat input form">
+            <input id="input-msg" type="text" autocomplete="off" placeholder="Type your message..." required aria-required="true"/>
+            <button type="submit" id="send-btn" aria-label="Send message">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const inputMsg = document.getElementById('input-msg');
+        const sendBtn = document.getElementById('send-btn');
+
+        // Append a chat message to the chat box
+        function appendMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('message', sender);
+            div.textContent = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Send user message to backend and display bot reply
+        async function sendMessage(message) {
+            appendMessage(message, 'user');
+            inputMsg.value = '';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:5000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                appendMessage(data.reply, 'bot');
+            } catch (error) {
+                appendMessage("Oops! I can't reach the server right now. Please try again later.", 'bot');
+            } finally {
+                sendBtn.disabled = false;
+                inputMsg.focus();
+            }
+        }
+
+        chatForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const msg = inputMsg.value.trim();
+            if (msg) {
+                sendMessage(msg);
+            }
+        });
+
+        // Initial greeting from bot
+        appendMessage("Hello! I'm here to listen. How can I support you today?", 'bot');
+    </script>
+</body>
+</html>
+
