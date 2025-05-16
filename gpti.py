@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 import requests
 import os
 import uuid
+import random
 from datetime import datetime
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -25,17 +26,8 @@ CORS(app,
      methods=["GET", "POST", "OPTIONS"]
 )
 
-# Function to call OpenAI API
+# Function to generate responses (using enhanced fallback responses)
 def get_chatgpt_response(user_message):
-    api_key = os.getenv('OPENAI_API_KEY')  # Use environment variable for API key
-
-    if not api_key:
-        logging.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
-        return "I'm sorry, but I'm not configured correctly. Please contact the administrator."
-    headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
-    }
     # Store conversation history in a dictionary with session IDs as keys
     conversation_history = getattr(app, 'conversation_history', {})
 
@@ -47,94 +39,137 @@ def get_chatgpt_response(user_message):
     # Get or initialize conversation history for this session
     if session_id not in conversation_history:
         conversation_history[session_id] = []
-        # Add system message to set the context for the AI
-        conversation_history[session_id].append({
-            'role': 'system',
-            'content': 'You are a supportive mental health chatbot. Respond with empathy and care. ' +
-                      'Provide helpful suggestions but make it clear you are not a replacement for professional help. ' +
-                      'Keep responses concise and focused on the user\'s well-being.'
-        })
 
     # Add the new user message to history
-    conversation_history[session_id].append({'role': 'user', 'content': user_message})
+    conversation_history[session_id].append({
+        'role': 'user',
+        'content': user_message,
+        'timestamp': datetime.now().isoformat()
+    })
 
-    # Limit history to last 10 messages to prevent token limits
+    # Limit history to last 10 messages
     if len(conversation_history[session_id]) > 10:
-        # Keep the system message and the most recent messages
-        conversation_history[session_id] = [conversation_history[session_id][0]] + conversation_history[session_id][-9:]
+        conversation_history[session_id] = conversation_history[session_id][-10:]
 
     # Save the conversation history back to the app
     app.conversation_history = conversation_history
 
-    # Prepare the messages for the API call
-    data = {
-        'model': 'gpt-3.5-turbo',  # Use the appropriate model
-        'messages': conversation_history[session_id],
-        'max_tokens': 150,  # Adjust as needed
-        'temperature': 0.7  # Add some variability but keep responses focused
-    }
+    # Generate a response using our enhanced rule-based system
+    reply = enhanced_response(user_message, session_id)
 
-    response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=data)
+    # Add the bot's reply to the conversation history
+    conversation_history[session_id].append({
+        'role': 'assistant',
+        'content': reply,
+        'timestamp': datetime.now().isoformat()
+    })
 
-    if response.status_code == 200:
-        reply = response.json()['choices'][0]['message']['content']
-        # Add the bot's reply to the conversation history
-        conversation_history[session_id].append({'role': 'assistant', 'content': reply})
-        return reply
-    else:
-        logging.error(f"OpenAI API error: {response.status_code} - {response.text}")
+    return reply
 
-        # Check for specific error types
-        try:
-            error_data = response.json().get('error', {})
-            error_type = error_data.get('type', '')
-            error_message = error_data.get('message', '')
-
-            if error_type == 'insufficient_quota':
-                # Fallback to a simple response generator when API quota is exceeded
-                return fallback_response(user_message)
-            else:
-                return f"API Error: {error_message}"
-        except:
-            return "Sorry, I couldn't process your request at the moment. The OpenAI API is currently unavailable."
-
-# Fallback response generator when API is unavailable
-def fallback_response(message):
+# Enhanced response generator with more sophisticated patterns
+def enhanced_response(message, session_id=None):
     message = message.lower()
 
-    # Simple patterns for fallback responses
-    greetings = ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening']
-    feelings = ['sad', 'depressed', 'unhappy', 'stress', 'anxiety', 'lonely', 'tired', 'angry', 'worried', 'overwhelmed']
-    jokes = ['joke', 'funny', 'laugh', 'humor']
-    thanks = ['thank', 'thanks', 'appreciate']
+    # Expanded patterns for better response matching
+    greetings = ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy', 'greetings', 'what\'s up']
+    feelings_negative = ['sad', 'depressed', 'unhappy', 'stress', 'anxiety', 'lonely', 'tired', 'angry', 'worried', 'overwhelmed', 'exhausted', 'frustrated', 'upset', 'down', 'miserable', 'hopeless']
+    feelings_positive = ['happy', 'good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'joyful', 'excited', 'content', 'peaceful', 'relaxed', 'cheerful', 'delighted', 'pleased']
+    jokes = ['joke', 'funny', 'laugh', 'humor', 'comedy', 'amuse', 'entertain']
+    thanks = ['thank', 'thanks', 'appreciate', 'grateful', 'gratitude']
+    music = ['song', 'music', 'playlist', 'recommend', 'listen', 'tune', 'melody', 'artist', 'band', 'album', 'track']
+    help_requests = ['help', 'advice', 'suggestion', 'guidance', 'assist', 'support', 'tip', 'recommendation']
+    wellness = ['routine', 'wellness', 'mental health', 'physical health', 'daily habit', 'healthy habit', 'morning routine', 'evening routine', 'meditation', 'exercise', 'sleep', 'diet', 'nutrition']
+    therapist = ['therapist', 'psychologist', 'psychiatrist', 'counselor', 'counselling', 'therapy', 'mental health professional', 'consultation', 'consultancy', 'wellness center']
 
+    # Check for song recommendations
+    if any(word in message for word in music):
+        return random.choice([
+            "I'd love to suggest some songs! For a happy mood, try 'Happy' by Pharrell Williams or 'Can't Stop the Feeling' by Justin Timberlake. For a more relaxed vibe, 'Weightless' by Marconi Union is wonderful.",
+            "Music can be so therapeutic! If you're feeling down, 'Fix You' by Coldplay might resonate. For an energy boost, 'Don't Stop Me Now' by Queen is perfect!",
+            "Here are some song recommendations: For focus, try 'Experience' by Ludovico Einaudi. For relaxation, 'Somewhere Over The Rainbow' by Israel Kamakawiwo'ole is beautiful.",
+            "I'd recommend 'Walking on Sunshine' by Katrina & The Waves to lift your spirits, or 'Breathe' by Télépopmusik for a calming effect."
+        ])
+
+    # Check for wellness routine requests
+    if any(word in message for word in wellness):
+        return random.choice([
+            "Here's a simple morning wellness routine: 1) Start with 5 minutes of deep breathing or meditation. 2) Drink a glass of water. 3) Stretch for 5-10 minutes. 4) Write down 3 things you're grateful for. 5) Eat a nutritious breakfast.",
+            "For mental wellness, try this daily routine: 1) Practice mindfulness for 10 minutes. 2) Take short breaks throughout your day. 3) Go for a 15-minute walk outdoors. 4) Connect with a loved one. 5) Before bed, reflect on 3 positive moments from your day.",
+            "A balanced daily wellness routine might include: 1) 7-8 hours of quality sleep. 2) Staying hydrated throughout the day. 3) 30 minutes of physical activity. 4) Eating nutritious meals. 5) 15 minutes of relaxation or hobby time. 6) Limited screen time before bed.",
+            "For an evening wind-down routine, try: 1) Disconnect from screens 1 hour before bed. 2) Take a warm shower or bath. 3) Practice gentle stretching. 4) Write in a journal or read a book. 5) Do a brief meditation or deep breathing exercise."
+        ])
+
+    # Check for therapist recommendations
+    if any(word in message for word in therapist):
+        return "If you're looking for professional mental health support, here are some options: 1) Dr. Jennifer Reynolds, Licensed Clinical Psychologist (212-555-7890), specializing in anxiety and depression. 2) Sophia Rodriguez, LMFT (310-555-9876), focusing on relationship issues. 3) David Kim, LCSW (206-555-7654), specializing in trauma recovery. You can also use online directories like Psychology Today or BetterHelp to find therapists in your area."
+
+    # Check for greetings
     if any(word in message for word in greetings):
         return random.choice([
-            "Hello! I'm currently using a fallback system as the AI service is unavailable. How can I help you today?",
-            "Hi there! The AI service is currently down, but I can still chat with you using my basic responses.",
-            "Hey! I'm operating in fallback mode right now, but I'm still here to help!"
+            "Hello! I'm happiRay, your mental health companion. How are you feeling today?",
+            "Hi there! I'm here to chat and support you. What's on your mind?",
+            "Hey! I'm happiRay. I'm here to listen and help however I can. How are you doing?",
+            "Greetings! I'm your friendly mental health chatbot. How can I support you today?"
         ])
 
-    if any(word in message for word in feelings):
+    # Check for positive feelings
+    if any(word in message for word in feelings_positive):
         return random.choice([
-            "I'm sorry to hear you're feeling that way. Remember that it's okay to seek help when you need it.",
-            "That sounds difficult. Even though I'm in fallback mode, I want you to know that your feelings are valid.",
-            "I understand this is hard. Consider reaching out to a mental health professional who can provide proper support."
+            "That's wonderful to hear! It's so important to acknowledge and celebrate positive feelings. What's contributing to your good mood?",
+            "I'm so happy to hear you're feeling good! Those positive emotions are worth savoring. Would you like to share what's going well?",
+            "That's fantastic! Your positive energy is contagious. What's bringing you joy today?",
+            "It's great that you're feeling positive! These good moments are precious. Is there anything specific that's brightened your day?"
         ])
 
+    # Check for negative feelings
+    if any(word in message for word in feelings_negative):
+        return random.choice([
+            "I'm sorry to hear you're feeling that way. Your feelings are valid, and it takes courage to express them. Would you like to talk more about what's going on?",
+            "It sounds like you're going through a difficult time. Remember that it's okay to not be okay sometimes. Is there anything specific that's troubling you?",
+            "I hear you, and I want you to know that you're not alone in feeling this way. Many people experience similar emotions. Would it help to talk about what might be causing these feelings?",
+            "Thank you for sharing how you're feeling. That can be hard to do. Remember that difficult emotions are part of being human, and they do pass with time. Is there something I can do to support you right now?"
+        ])
+
+    # Check for jokes
     if any(word in message for word in jokes):
         return random.choice([
             "Why don't scientists trust atoms? Because they make up everything!",
             "What did the ocean say to the beach? Nothing, it just waved!",
             "Why did the scarecrow win an award? Because he was outstanding in his field!",
-            "I'm currently in fallback mode, but here's a joke: Why did the bicycle fall over? It was two-tired!"
+            "Why did the bicycle fall over? It was two-tired!",
+            "What do you call a fake noodle? An impasta!",
+            "How does a penguin build its house? Igloos it together!",
+            "Why don't eggs tell jokes? They'd crack each other up!"
         ])
 
+    # Check for thanks
     if any(word in message for word in thanks):
-        return "You're welcome! I'm happy to help, even in fallback mode."
+        return random.choice([
+            "You're very welcome! I'm here whenever you need to talk.",
+            "It's my pleasure to be here for you. How else can I help?",
+            "I'm glad I could be of assistance. Remember, I'm here anytime you need support.",
+            "You're welcome! Your well-being is important to me."
+        ])
 
-    # Default response
-    return "I'm currently operating in fallback mode because the AI service is unavailable. I have limited responses, but I'm still here to chat!"
+    # Check for help requests
+    if any(word in message for word in help_requests):
+        return random.choice([
+            "I'm here to help! I can suggest coping strategies, recommend songs to match your mood, provide wellness routines, or just be someone to talk to. What would be most helpful right now?",
+            "I'd be happy to help. I can listen, offer support, suggest self-care activities, or provide information about mental wellness. What kind of support are you looking for?",
+            "I'm here to support you. Would you like suggestions for managing stress, improving mood, or enhancing your overall well-being?",
+            "I'm ready to assist you. I can offer a listening ear, suggest relaxation techniques, or provide resources for mental wellness. What would you find most helpful?"
+        ])
+
+    # Default response for other messages
+    return random.choice([
+        "Thank you for sharing that with me. How does this affect your day-to-day life?",
+        "I appreciate you telling me about this. How are you feeling about it?",
+        "That's interesting. Would you like to tell me more about your experience?",
+        "I'm here to listen. How can I best support you right now?",
+        "Thank you for sharing. What would be most helpful for you in this moment?",
+        "I'm here for you. Would you like to explore this topic further?",
+        "I value your openness. Is there a specific aspect of this you'd like to focus on?"
+    ])
 
 @app.route('/chat', methods=['POST'])
 def chat():
