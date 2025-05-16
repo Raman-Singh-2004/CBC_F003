@@ -79,7 +79,8 @@ def enhanced_response(message, session_id=None):
     music = ['song', 'music', 'playlist', 'recommend', 'listen', 'tune', 'melody', 'artist', 'band', 'album', 'track']
     help_requests = ['help', 'advice', 'suggestion', 'guidance', 'assist', 'support', 'tip', 'recommendation']
     wellness = ['routine', 'wellness', 'mental health', 'physical health', 'daily habit', 'healthy habit', 'morning routine', 'evening routine', 'meditation', 'exercise', 'sleep', 'diet', 'nutrition']
-    therapist = ['therapist', 'psychologist', 'psychiatrist', 'counselor', 'counselling', 'therapy', 'mental health professional', 'consultation', 'consultancy', 'wellness center']
+    wellness_centers = ['wellness center', 'wellness centre', 'mental health center', 'mental health clinic', 'healing center', 'holistic center', 'mindfulness center', 'meditation center', 'yoga studio', 'health spa']
+    therapist = ['therapist', 'psychologist', 'psychiatrist', 'counselor', 'counselling', 'therapy', 'mental health professional', 'consultation', 'consultancy']
 
     # Check for song recommendations
     if any(word in message for word in music):
@@ -89,6 +90,40 @@ def enhanced_response(message, session_id=None):
             "Here are some song recommendations: For focus, try 'Experience' by Ludovico Einaudi. For relaxation, 'Somewhere Over The Rainbow' by Israel Kamakawiwo'ole is beautiful.",
             "I'd recommend 'Walking on Sunshine' by Katrina & The Waves to lift your spirits, or 'Breathe' by Télépopmusik for a calming effect."
         ])
+
+    # Check for wellness center requests first (more specific than general wellness)
+    if any(center in message for center in wellness_centers):
+        return """Here are some recommended wellness centers that provide mental health services:
+
+1. **Mindful Healing Center**
+   - Address: 1270 Avenue of the Americas, Suite 1505, New York, NY 10020
+   - Services: Therapy, Meditation Classes, Stress Management Workshops
+   - Contact: (212) 555-7890
+   - Website: www.mindfulhealingcenter.com
+
+2. **Wellness Renewal Institute**
+   - Address: 450 Sutter Street, Suite 840, San Francisco, CA 94108
+   - Services: Holistic Mental Health, Yoga, Nutrition Counseling
+   - Contact: (415) 555-3421
+   - Website: www.wellnessrenewal.org
+
+3. **Serenity Wellness Collective**
+   - Address: 11500 W. Olympic Blvd, Suite 400, Los Angeles, CA 90064
+   - Services: Group Therapy, Mindfulness Training, Art Therapy
+   - Contact: (310) 555-9876
+   - Website: www.serenitywellness.com
+
+4. **Harmony Health Center**
+   - Address: 211 E. Ontario Street, Suite 1100, Chicago, IL 60611
+   - Services: Mental Health Counseling, Meditation, Wellness Workshops
+   - Contact: (312) 555-4567
+   - Website: www.harmonyhealthcenter.org
+
+5. **Tranquil Mind Wellness**
+   - Address: 1330 Boylston Street, Suite 500, Boston, MA 02215
+   - Services: Therapy, Yoga, Meditation, Stress Reduction Programs
+   - Contact: (617) 555-2345
+   - Website: www.tranquilmindwellness.com"""
 
     # Check for wellness routine requests
     if any(word in message for word in wellness):
